@@ -90,11 +90,38 @@ const revealObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.15 });
 revealEls.forEach(el => revealObserver.observe(el));
 
-/* ---------- Live total member stat ---------- */
-fetch('/api/members')
-  .then(res => res.json())
-  .then(members => {
-    const el = document.getElementById('statLordTotal');
-    if (el) el.textContent = members.length;
-  })
-  .catch(() => {});
+/* ---------- Live total member stat (real-time via Socket.IO) ---------- */
+(function liveTotalStat(){
+  const el = document.getElementById('statLordTotal');
+  if (!el) return;
+
+  function setTotal(n){
+    if (typeof n === 'number' && !Number.isNaN(n)) el.textContent = n;
+  }
+
+  // Fallback so the number isn't blank before the socket connects,
+  // and as a safety net if sockets are ever unavailable.
+  function fetchOnce(){
+    fetch('/api/members')
+      .then(res => res.json())
+      .then(members => setTotal(members.length))
+      .catch(() => {});
+  }
+  fetchOnce();
+
+  // If the Socket.IO client failed to load for any reason, keep the
+  // fetch-based value instead of leaving the stat stuck/undefined.
+  if (typeof io !== 'function') return;
+
+  const socket = io();
+
+  // Server sends the full roster on connect and on every new registration.
+  socket.on('members:sync', (members) => {
+    setTotal(Array.isArray(members) ? members.length : undefined);
+  });
+
+  // Re-sync immediately after reconnecting (e.g. dropped connection,
+  // sleep/wake, or server restart) so the count never stays stale.
+  socket.on('connect', fetchOnce);
+  socket.on('reconnect', fetchOnce);
+})();
