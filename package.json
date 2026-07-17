@@ -1,0 +1,18 @@
+{
+  "name": "flash-peak-register",
+  "version": "1.0.0",
+  "description": "Flash Peak Community — real-time registration portal with live join notifications and ID card generator",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.8.3"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}
