@@ -1,0 +1,11 @@
+{
+  "name": "flash-peak-register",
+  "version": "2.0.0",
+  "description": "Flash Peak Community — real-time registration portal (Vercel + Supabase)",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
